@@ -1,4 +1,4 @@
-#!/usr/bin/env /Users/ryan/src/dxc-config-imr-ca/ldap/linbox/z/p/scala-script
+#!/usr/bin/env scala-script
 //#include included-top.scala
 object FromHere {
   override def toString = "from-here"
