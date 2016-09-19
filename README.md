@@ -54,6 +54,20 @@ main.scala
 println(Something)
 ```
 
+## Outputs
+
+The script pre-processes each scala file and generates a matching `filename.g.scala` file with
+the `include` content expanded. When the script is run it is these `.g.` files that are executed,
+ultimately, the entire content in the main script. If any source file changes the script
+regenerates the `.g.` files as necessary.
+
+The top level script is also persisted as a `jar` file for subsequent launches.
+
+## Caveats
+
+I created these scripts for my own use after not finding something suited to my needs. If you find
+it useful but need some tweaks please fork it and make the changes you need.
+
 ## License
 
 MIT - See the LICENSE file included in the repository.
