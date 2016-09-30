@@ -32,12 +32,15 @@ the resulting script in `/usr/local/bin`.
 - `classpath` - the classpath will automatically be built for any jar files located in the `lib/` folder
   relative to the script being executed
 - `include` - other scala scripts can be included using the syntax `//#include path/to/file.scala`
+- `repl` - launching scala-script with `--repl` will prepare the class path and launch the scala
+  repl directly
 
 See the `test` folder of this repository for a complete example.
 
 ## Usage
 
 something.scala
+
 ```scala
 // sample included script
 //
@@ -48,10 +51,19 @@ object Something {
 ```
 
 main.scala
+
 ```scala
 //#include something.scala
 
 println(Something)
+```
+
+shell example
+
+```scala
+#!/usr/bin/env scala-script
+
+println("scala script")
 ```
 
 ## Outputs

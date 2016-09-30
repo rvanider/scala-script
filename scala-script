@@ -10,12 +10,17 @@ fi
 
 if [ -z "$top" ]; then
   echo "usage: scala-script script.scala [script-args]"
+  echo "usage: scala-script --repl [scala-args]"
   exit 1
 fi
 
-if [ ! -f "$top" ]; then
+if [ "$top" == "--repl" ]; then
+  open_repl=1
+elif [ ! -f "$top" ]; then
   echo "error: unable to locate $top"
   exit 1
+else
+  open_repl=0
 fi
 
 function debug_line
@@ -134,14 +139,20 @@ function process_file
 }
 
 here=$(pwd)
-folder=$(dirname $top)
-file=$(basename $top)
-if [ "$folder" == "." ] || [ "$folder" == "" ]; then
+
+if [ $open_repl -eq 1 ]; then
   folder=$here
+  out_file=
+else
+  folder=$(dirname $top)
+  file=$(basename $top)
+  if [ "$folder" == "." ] || [ "$folder" == "" ]; then
+    folder=$here
+  fi
+  out_file=$(get_gen_file "$folder/$file")
+  # echo "[$here][$folder][$file][$out_file]"
+  process_file "$folder/$file" "" "$out_file"
 fi
-out_file=$(get_gen_file "$folder/$file")
-# echo "[$here][$folder][$file][$out_file]"
-process_file "$folder/$file" "" "$out_file"
 
 ## build the class path
 ##
