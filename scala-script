@@ -34,7 +34,9 @@ function debug_line
 function get_gen_file
 {
   local source=$1
-  local dest="${source%.*}.g.scala"
+  # local dest="${source%.*}.g.scala"
+  local dest="$(dirname $source)/.g.$(basename $source)"
+
   echo $dest
 }
 
