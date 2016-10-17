@@ -26,7 +26,7 @@ fi
 function debug_line
 {
   if [ -n "$SCALA_SCRIPT_DEBUG" ]; then
-    echo "$*"
+    (>&2 echo "$*")
   fi
   return 0
 }
@@ -57,6 +57,7 @@ function process_file
   local INCLUDES=$(cat $file | grep '//#include')
   local include
   local dirty=0
+  debug_line "${padding}scanning dependencies on ${file}"
   for include in $INCLUDES; do
     if [ "//#include" != "$include" ]; then
       debug_line "${padding}found include for $include in $(basename $file)"
@@ -68,11 +69,11 @@ function process_file
       fi
       if [ ! -f "$include_target" ]; then
         local dirty=1
-        debug_line "${padding}removing parent: $(basename $parent_g_file)"
+        debug_line "${padding}target missing, removing parent: $(basename $parent_g_file)"
         [ -n "$parent_g_file" ] && rm -f "$parent_g_file"
       elif [ "$include" -nt "$include_target" ]; then
         local dirty=1
-        debug_line "${padding}removing parent: $(basename $parent_g_file)"
+        debug_line "${padding}source newer, removing parent: $(basename $parent_g_file)"
         [ -n "$parent_g_file" ] && rm -f "$parent_g_file"
       fi
       process_file $include "${padding}  " "$out_file"
