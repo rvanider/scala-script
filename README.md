@@ -17,8 +17,8 @@ installed and on the path.
 The only file in this repository you need is the `scala-script` for
 your respective platform (OSX or Linux).
 
-    curl -s --fail -L --output "/path/to/store/scala-script" https://github.com/rvanider/scala-script/blob/master/scala-script?raw=true
-    chmod +x "/path/to/store/scala-script"
+You can download the release binaries from the
+[releases page](https://github.com/rvanider/scala-script/releases/latest)
 
 ## Features
 
