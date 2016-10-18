@@ -11,6 +11,9 @@ import (
 	"syscall"
 )
 
+// VERSION ...
+var VERSION string
+
 // SourceFile ...
 type SourceFile struct {
 	name         string
@@ -46,6 +49,7 @@ func check(e error) {
 func usage() {
 	sysLogger := log.New(os.Stderr, "", 0)
 	name := filepath.Base(os.Args[0])
+	sysLogger.Println(name, VERSION)
 	sysLogger.Println("usage:", name, "script.scala [script-args]")
 	sysLogger.Println("usage:", name, "--repl [scala-args]")
 }

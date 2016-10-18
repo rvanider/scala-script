@@ -1,5 +1,6 @@
-
-default: scala-script-darwin scala-script-linux
+OUT=bin
+DIST=dist
+default: *.go scala-script-darwin scala-script-linux
 
 all: clean default
 
@@ -9,14 +10,25 @@ libs:
 tests:
 	./test.sh
 
-scala-script-darwin: *.go
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o scala-script-darwin -ldflags '-s -w -extldflags "-static"'
+dist: default
+	mkdir -p $(DIST)
+	zip -j $(DIST)/scala-script_$(VERSION)_linux_amd64.zip $(OUT)/linux/scala-script
+	zip -j $(DIST)/scala-script_$(VERSION)_darwin_amd64.zip $(OUT)/darwin/scala-script
 
-scala-script-linux: *.go
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o scala-script-linux -ldflags '-s -w -extldflags "-static"'
+scala-script-darwin: *.go $(OUT)/darwin/scala-script
+
+$(OUT)/darwin/scala-script: *.go
+	mkdir -p $(OUT)/darwin
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o $(OUT)/darwin/scala-script -ldflags "-X main.VERSION=$(VERSION) -s -w -extldflags \"-static\""
+
+scala-script-linux: *.go $(OUT)/linux/scala-script
+
+$(OUT)/linux/scala-script: *.go
+	mkdir -p $(OUT)/linux
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o $(OUT)/linux/scala-script -ldflags "-X main.VERSION=$(VERSION) -s -w -extldflags \"-static\""
 
 clean:
 	go clean
-	rm -f scala-script-linux
-	rm -f scala-script-darwin
+	rm -rf $(OUT)
+	rm -rf $(DIST)
 	./clean.sh
