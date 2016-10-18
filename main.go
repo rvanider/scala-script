@@ -184,6 +184,7 @@ func gatherClassPath(root string) string {
 			cp = append(cp, name)
 		}
 	}
+	cp = append(cp, root)
 
 	return strings.Join(cp, ":")
 }
