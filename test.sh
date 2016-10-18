@@ -8,7 +8,7 @@ if [ "$ret" != "0" ]; then
 fi
 
 echo testing
-./scala-script test/test.scala
+./scala-script-darwin test/test.scala
 ret=$?
 if [ "$ret" == "0" ]; then
   ./clean.sh
