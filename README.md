@@ -27,6 +27,9 @@ your respective platform (OSX or Linux).
 - `include` - other scala scripts can be included using the syntax `//#include path/to/file.scala`
 - `repl` - launching scala-script with `--repl` will prepare the class path and launch the scala
   repl directly
+- `scala.script.name` - a defined property that tells you the name of the top level
+  script that is executing - use this to load other resource files that are relative
+  to the script itself
 
 See the `test` folder of this repository for a complete example.
 
