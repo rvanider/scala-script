@@ -24,6 +24,11 @@ type SourceFile struct {
 }
 
 var logger = loadLogger()
+var sysLogger = loadSysLogger()
+
+func loadSysLogger() *log.Logger {
+	return log.New(os.Stderr, "", 0)
+}
 
 func loadLogger() *log.Logger {
 	var _, debugFlag = os.LookupEnv("SCALA_SCRIPT_DEBUG")
@@ -47,7 +52,6 @@ func check(e error) {
 // how to use
 //
 func usage() {
-	sysLogger := log.New(os.Stderr, "", 0)
 	name := filepath.Base(os.Args[0])
 	sysLogger.Println(name, VERSION)
 	sysLogger.Println("usage:", name, "script.scala [script-args]")
@@ -173,7 +177,7 @@ func gatherClassPath(root string) string {
 	logger.Println("class path root:", root)
 	files, err := ioutil.ReadDir(filepath.Join(root, "lib"))
 	if err != nil {
-		return ""
+		return root
 	}
 
 	var cp []string
@@ -189,13 +193,104 @@ func gatherClassPath(root string) string {
 	return strings.Join(cp, ":")
 }
 
+// Options ...
+type Options struct {
+	help       bool
+	repl       bool
+	nop        bool
+	scriptName string
+	scalaArgs  []string
+	scriptArgs []string
+}
+
+func parse(args []string) Options {
+	if len(args) <= 0 {
+		usage()
+		os.Exit(0)
+	}
+
+	opts := Options{}
+	opts.help = false
+	opts.repl = false
+	opts.nop = false
+
+	i := 0
+	for i < len(args) {
+		if strings.HasPrefix(args[i], "-") {
+			if strings.HasSuffix(args[i], "-help") {
+				opts.help = true
+			} else if args[i] == "--repl" {
+				opts.repl = true
+			} else if args[i] == "--nop" {
+				opts.nop = true
+			} else {
+				opts.scalaArgs = append(opts.scalaArgs, args[i])
+			}
+			i++
+		} else {
+			break
+		}
+	}
+
+	// next arg is logically the script to run
+	//
+	if i < len(args) {
+		opts.scriptName = args[i]
+		i++
+	}
+
+	// the rest of the arguments belong to the script
+	//
+	for i < len(args) {
+		opts.scriptArgs = append(opts.scriptArgs, args[i])
+		i++
+	}
+
+	logger.Println("help       :", opts.help)
+	logger.Println("repl       :", opts.repl)
+	logger.Println("nop        :", opts.nop)
+	logger.Println("scala.args :", opts.scalaArgs)
+	logger.Println("script.name:", opts.scriptName)
+	logger.Println("script.args:", opts.scriptArgs)
+
+	// skip out on help request
+	//
+	if opts.help {
+		usage()
+		os.Exit(0)
+	}
+
+	// validate our two modes of operation
+	//
+	if opts.repl && opts.scriptName != "" {
+		usage()
+		sysLogger.Println("error:", "cannot supply both repl and script")
+		os.Exit(1)
+	}
+
+	// check if the file exists
+	//
+	if opts.scriptName != "" {
+		_, err := os.Stat(opts.scriptName)
+		if err != nil {
+			usage()
+			sysLogger.Println("error:", "cannot locate script", opts.scriptName)
+			os.Exit(1)
+		}
+	}
+
+	return opts
+}
+
 // entry point
 //
 func main() {
 	args := os.Args[1:]
+	opts := parse(args)
 
-	if len(args) <= 0 {
-		usage()
+	cmdFile, err := exec.LookPath("scala")
+	if err != nil {
+		sysLogger.Println("error:", "unable to locate scala")
 		os.Exit(1)
 	}
 
@@ -205,41 +300,43 @@ func main() {
 	var cp string
 	var result *SourceFile
 	var scriptFile string
+	var scriptSrcFile string
 
-	if args[0] == "--repl" {
+	if opts.repl {
 		cp = gatherClassPath(wd)
 		scriptFile = wd
+		scriptSrcFile = scriptFile
 	} else {
-		result, scriptFile, err = loadFile(wd, args[0])
+		result, scriptFile, err = loadFile(wd, opts.scriptName)
 		check(err)
+		scriptSrcFile = filepath.Join(result.folder, result.src)
 
 		cp = gatherClassPath(result.folder)
 	}
 
-	cmdFile, err := exec.LookPath("scala")
-	check(err)
+	launchArgs := []string{cmdFile}
+	launchArgs = append(launchArgs, "-classpath")
+	launchArgs = append(launchArgs, cp)
+	if !opts.nop {
+		launchArgs = append(launchArgs, "-deprecation")
+		launchArgs = append(launchArgs, "-feature")
+		launchArgs = append(launchArgs, "-save")
+		launchArgs = append(launchArgs, "-Xlint:_")
+	}
+	launchArgs = append(launchArgs, "-Dscala.script.name="+scriptSrcFile)
 
-	env := os.Environ()
-	launchArgs := []string{
-		cmdFile,
-		"-deprecation",
-		"-feature",
-		"-savecompiled",
-		"-classpath",
-		cp,
-		"-Dscala.script.name=" + scriptFile}
+	launchArgs = append(launchArgs, opts.scalaArgs...)
 
-	// first arg is either --repl or script to execute
-	//
-	if result != nil {
+	if !opts.repl {
 		launchArgs = append(launchArgs, scriptFile)
 	}
-	args = args[1:]
-	launchArgs = append(launchArgs, args...)
+
+	launchArgs = append(launchArgs, opts.scriptArgs...)
 
 	// spawn the call, replacing ourselves
 	//
 	logger.Println("command:", launchArgs)
+	env := os.Environ()
 	err = syscall.Exec(cmdFile, launchArgs, env)
 	check(err)
 }

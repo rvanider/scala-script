@@ -62,9 +62,40 @@ shell example
 println("scala script")
 ```
 
+Passing additional flags
+
+```scala
+#!/usr/bin/env scala-script -Dlog.level=warn
+
+println(System.getProperty("log.level"))
+```
+
+Overriding default command options
+
+```scala
+#!/usr/bin/env scala-script --nop -nc
+
+println("Does not use the fsc offline compiler")
+```
+
+## Defaults
+
+The scala command is run with the following options:
+
+- `-Dscala.script.name=/path/to/script.scala`
+- `classpath` - list of jar files located in the `lib` folder
+  relative to the script that is run
+- `deprecation`
+- `feature`
+- `save`
+- `Xlint:_`
+
+Pass the `--nop` flag to disable the use of flags other than the
+`classpath` and `scala.script.name` values.
+
 ## Outputs
 
-The script pre-processes each scala file and generates a matching `filename.g.scala` file with
+The script pre-processes each scala file and generates a matching `.g.filename` file with
 the `include` content expanded. When the script is run it is these `.g.` files that are executed,
 ultimately, the entire content in the main script. If any source file changes the script
 regenerates the `.g.` files as necessary.
