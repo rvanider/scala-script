@@ -12,8 +12,18 @@ tests:
 
 dist: default
 	mkdir -p $(DIST)
-	zip -j $(DIST)/scala-script_$(VERSION)_linux_amd64.zip $(OUT)/linux/scala-script
-	zip -j $(DIST)/scala-script_$(VERSION)_darwin_amd64.zip $(OUT)/darwin/scala-script
+	tar cJf $(DIST)/scala-script_$(VERSION)_linux_amd64.tar.xz -C $(OUT)/linux .
+	tar cJf $(DIST)/scala-script_$(VERSION)_darwin_amd64.tar.xz -C $(OUT)/darwin .
+
+upload:
+	github-release upload \
+		-t v$(VERSION) \
+		-n scala-script_$(VERSION)_darwin_amd64.tar.xz \
+		-f $(DIST)/scala-script_$(VERSION)_darwin_amd64.tar.xz
+	github-release upload \
+		-t v$(VERSION) \
+		-n scala-script_$(VERSION)_linux_amd64.tar.xz \
+		-f $(DIST)/scala-script_$(VERSION)_linux_amd64.tar.xz
 
 scala-script-darwin: *.go $(OUT)/darwin/scala-script
 
