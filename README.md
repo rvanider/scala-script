@@ -118,4 +118,6 @@ MIT - See the LICENSE file included in the repository.
 
 ```bash
 yum install -y https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.rpm
+export JAVA_TOOL_OPTIONS="-XX:UseAVX=0 -XX:UseSSE=0"
+export SCALA_SCRIPT_DEBUG=1
 ```
