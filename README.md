@@ -113,3 +113,9 @@ bash version got progressively slower processing the files.
 ## License
 
 MIT - See the LICENSE file included in the repository.
+
+## Notes
+
+```bash
+yum install -y https://downloads.lightbend.com/scala/2.13.8/scala-2.13.8.rpm
+```
