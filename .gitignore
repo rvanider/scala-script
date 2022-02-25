@@ -1,6 +1,8 @@
 .*
 **/*.g.*
 **/*.jar
+**/*.core
+**/*.log
 scala-script-*
 scala-script
 dist/
