@@ -214,7 +214,7 @@ func parse(args []string) Options {
 	opts.help = false
 	opts.repl = false
 	opts.nop = false
-	opts.comp = false
+	opts.comp = true
 
 	i := 0
 	for i < len(args) {
