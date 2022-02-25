@@ -198,6 +198,7 @@ type Options struct {
 	help       bool
 	repl       bool
 	nop        bool
+	comp       bool
 	scriptName string
 	scalaArgs  []string
 	scriptArgs []string
@@ -213,6 +214,7 @@ func parse(args []string) Options {
 	opts.help = false
 	opts.repl = false
 	opts.nop = false
+	opts.comp = false
 
 	i := 0
 	for i < len(args) {
@@ -223,6 +225,8 @@ func parse(args []string) Options {
 				opts.repl = true
 			} else if args[i] == "--nop" {
 				opts.nop = true
+			} else if args[i] == "--comp" {
+				opts.comp = true
 			} else {
 				opts.scalaArgs = append(opts.scalaArgs, args[i])
 			}
@@ -249,6 +253,7 @@ func parse(args []string) Options {
 	logger.Println("help       :", opts.help)
 	logger.Println("repl       :", opts.repl)
 	logger.Println("nop        :", opts.nop)
+	logger.Println("comp       :", opts.comp)
 	logger.Println("scala.args :", opts.scalaArgs)
 	logger.Println("script.name:", opts.scriptName)
 	logger.Println("script.args:", opts.scriptArgs)
@@ -322,6 +327,10 @@ func main() {
 		launchArgs = append(launchArgs, "-feature")
 		launchArgs = append(launchArgs, "-save")
 		launchArgs = append(launchArgs, "-Xlint:_")
+	}
+	if opts.comp {
+		launchArgs = append(launchArgs, "-nc")
+		launchArgs = append(launchArgs, "-nobootcp")
 	}
 	launchArgs = append(launchArgs, "-Dscala.script.name="+scriptSrcFile)
 
